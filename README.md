@@ -1,0 +1,89 @@
+# Personal Expense Tracker (CLI Demo)
+
+This is a simple **Python-based personal expense tracker** that works entirely in the terminal.  
+It allows you to register/login users, add expenses, and list expenses with optional filters.  
+All data is stored locally in JSON files.
+
+---
+
+## Features
+- **User system**: Register and login with username + password (stored in `storage/users.json`).
+- **Expense management**: Add expenses with date, amount, category, description, payment method, and tags.
+- **Listing**: View all expenses, filter by date range or category.
+- **Persistence**: Each user's expenses are saved in `data/<username>/expanses.json`.
+- **Simple CLI menu**: Navigate via text-based options.
+
+---
+
+## Project Structure
+```
+.
+├── app.py                 # Main application with CLI demo
+├── storage/
+│   └── users.json         # Stores registered users
+└── data/
+    └── <username>/
+        └── expanses.json  # Stores expenses for each user
+```
+
+---
+
+## How to Run
+1. Make sure you have Python 3.10+ installed.
+2. Run the application:
+   ```bash
+   python app.py
+   ```
+3. Use the menu to **register**, **login**, **add expenses**, or **list expenses**.
+
+---
+
+## Example CLI Flow
+```
+========================================================
+  Expense Tracker  |  State: AUTH
+========================================================
+1) Register
+2) Login
+0) Exit
+> 1
+Username: alice
+Password: secret
+registered and logged in
+
+========================================================
+  Expense Tracker  |  User: alice  |  State: HOME
+========================================================
+1) Add expense
+2) List expenses
+3) Logout
+0) Exit
+> 1
+Date (YYYY-MM-DD, empty=today): 
+Amount: 25
+Category: Food
+Description (optional): Pizza dinner
+Payment method (optional): Card
+Tags separated by commas (optional): dinner, weekend
+✅ Added expense with id: exp_20250907_153045123
+Saved in file: data/alice/expanses.json
+```
+
+---
+
+## Notes
+- Expenses are stored in plain JSON for easy inspection/editing.
+- This demo is **CLI-only**. Later, it can be extended with:
+  - Flask API backend
+  - MySQL database
+  - Web frontend (HTML/CSS/JS)
+
+---
+
+## License
+MIT License
+
+Copyright (c) 2025 Alican Aksel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy...
+# expanse-tracker
