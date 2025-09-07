@@ -1,84 +1,176 @@
-# Personal Expense Tracker (CLI Demo)
+1) High-Level Flow (Application Lifecycle)
 
-This is a simple **Python-based personal expense tracker** that works entirely in the terminal.  
-It allows you to register/login users, add expenses, and list expenses with optional filters.  
-All data is stored locally in JSON files.
++----------------------+
+| Start (python app.py)|
++----------+-----------+
+           |
+           v
+   +---------------+
+   | boot():       |
+   | - ensure users|
+   | - ensure data |
+   +-------+-------+
+           |
+           v
+   +---------------+
+   | go_auth()     |
+   | state="AUTH"  |
+   +-------+-------+
+           |
+           v
+   +----------------------------+
+   | DEMO CLI Main Loop         |
+   | (state-driven menu)        |
+   +------+---------------------+
+          |   (state == "AUTH")    (state == "HOME")
+          |                         |
+          |                         v
+          v                  +--------------+
+   +--------------+          | HOME Menu    |
+   | AUTH Menu    |          | - Add        |
+   | - Register   |          | - List       |
+   | - Login      |          | - Logout     |
+   | - Exit       |          | - Exit       |
+   +------+-------+          +------+-------+
+          |                         |
+          | (Register/Login OK)     | (Logout)
+          +-----------+-------------+------+
+                      |                    |
+                      v                    v
+                +-----------+        +-----------+
+                | go_home() |        | go_auth() |
+                | state=HOME|        | state=AUTH|
+                +-----------+        +-----------+
 
----
+                         (Exit anywhere -> program ends)
 
-## Features
-- **User system**: Register and login with username + password (stored in `storage/users.json`).
-- **Expense management**: Add expenses with date, amount, category, description, payment method, and tags.
-- **Listing**: View all expenses, filter by date range or category.
-- **Persistence**: Each user's expenses are saved in `data/<username>/expanses.json`.
-- **Simple CLI menu**: Navigate via text-based options.
+2) AUTH Menu (Register / Login)
 
----
++-----------------------------+
+| AUTH Menu                   |
+| 1) Register                 |
+| 2) Login                    |
+| 0) Exit                     |
++--------------+--------------+
+               |
+     +---------+-----------+
+     |                     |
+     v                     v
++----------+         +-----------+
+| Register |         |  Login    |
++----+-----+         +-----+-----+
+     |                     |
+     | action_register(u,p)|  action_login(u,p)
+     |  - register_user    |   - authenticate_user
+     |  - ensure_user_dir  |   - if ok -> go_home
+     v                     v
++----------+         +-----------+
+| ok?      |         | ok?       |
++---+------+         +-----+-----+
+    |                      |
+yes v                      v no
++--------+            +---------+
+| go_home|            |  print  |
+| HOME   |            |  error  |
++--------+            +---------+
 
-## Project Structure
-```
-.
-├── app.py                 # Main application with CLI demo
+3) HOME Menu (Add / List / Logout)
+
++--------------------------------------+
+| HOME Menu                            |
+| 1) Add expense                       |
+| 2) List expenses                     |
+| 3) Logout                            |
+| 0) Exit                              |
++---------+-------------+--------------+
+          |             |       
+          v             v       
+   +------+-----+  +----+-------------------+
+   | Add Flow   |  | List Flow             |
+   +------------+  +-----------------------+
+          |                    |
+          |                    v
+          |              (filters?) from_date/to_date/category
+          |                    |
+          |               list_expenses()
+          |                    |
+          v                    v
+    add_expense()         print table
+          |
+          v
+  print id + path
+
+(3) Logout -> go_auth()
+(0) Exit   -> end program
+
+4) “Add Expense” Sub-Flow (Validation + Save)
+
+User input: date? amount? category? desc? method? tags?
+
+            +-----------------------------+
+            | add_expense(username,payload)|
+            +---------------+-------------+
+                            |
+      +---------------------+----------------------------------+
+      |                                                        |
+      v                                                        v
+validate_date_iso(date or today)                        validate_amount_positive(amount)
+      |                                                        |
+      v                                                        v
+validate_required_text(category,"category")               normalize_tags(tags)
+      |                                                        |
+      +----------------------------+---------------------------+
+                                   |
+                                   v
+                         load_expenses(username)  -> items list
+                                   |
+                                   v
+                         generate_expense_id() -> eid
+                                   |
+                                   v
+                         items.append(new_expense_dict)
+                                   |
+                                   v
+                         save_expenses(username, items)
+                                   |
+                                   v
+                         return eid (for UI to print)
+
+
+5) “List Expenses” Sub-Flow (Filter + Sort)
+
+User input -> filters:
+- from_date (YYYY-MM-DD)  [optional]
+- to_date   (YYYY-MM-DD)  [optional]
+- category  (exact)       [optional]
+
++--------------------------+
+| list_expenses(username,f)|
++------------+-------------+
+             |
+             v
+   items = load_expenses(username)
+             |
+             v
+   if f.from_date:  keep where e.date >= from_date
+   if f.to_date:    keep where e.date <= to_date
+   if f.category:   keep where e.category == category
+             |
+             v
+   sort by (date, id) DESC
+             |
+             v
+   return items (UI prints a table)
+
+
+
+6) Filesystem & Persistence (JSON)
+Project Root
+├── app.py
 ├── storage/
-│   └── users.json         # Stores registered users
+│   └── users.json           # { "users": [ { "username": "...", "password": "..." }, ... ] }
 └── data/
     └── <username>/
-        └── expanses.json  # Stores expenses for each user
-```
+        ├── expanses.json    # { "expenses": [ {id, date, amount, category, description, payment_method, tags[]}, ... ] }
+        └── settings.json    # { "currency": "USD", "categories": [...] }  (created by ensure_user_dir_exists)
 
----
-
-## How to Run
-1. Make sure you have Python 3.10+ installed.
-2. Run the application:
-   ```bash
-   python app.py
-   ```
-3. Use the menu to **register**, **login**, **add expenses**, or **list expenses**.
-
----
-
-## Example CLI Flow
-```
-========================================================
-  Expense Tracker  |  State: AUTH
-========================================================
-1) Register
-2) Login
-0) Exit
-> 1
-Username: alice
-Password: secret
-registered and logged in
-
-========================================================
-  Expense Tracker  |  User: alice  |  State: HOME
-========================================================
-1) Add expense
-2) List expenses
-3) Logout
-0) Exit
-> 1
-Date (YYYY-MM-DD, empty=today): 
-Amount: 25
-Category: Food
-Description (optional): Pizza dinner
-Payment method (optional): Card
-Tags separated by commas (optional): dinner, weekend
-✅ Added expense with id: exp_20250907_153045123
-Saved in file: data/alice/expanses.json
-```
-
----
-
-## Notes
-- Expenses are stored in plain JSON for easy inspection/editing.
-- This demo is **CLI-only**. Later, it can be extended with:
-  - Flask API backend
-  - MySQL database
-  - Web frontend (HTML/CSS/JS)
-
----
-
-## License
-MIT License — free to use and modify.
