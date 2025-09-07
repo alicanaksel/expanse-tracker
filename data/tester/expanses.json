@@ -1,0 +1,40 @@
+{
+  "expenses": [
+    {
+      "id": "exp_20250907_181007307632",
+      "date": "2025-10-01",
+      "amount": 490.0,
+      "category": "rent",
+      "description": "dormitory rent",
+      "payment_method": "card",
+      "tags": []
+    },
+    {
+      "id": "exp_20250907_181050350357",
+      "date": "2025-10-01",
+      "amount": 11.0,
+      "category": "Bills",
+      "description": "phone bill",
+      "payment_method": "card",
+      "tags": []
+    },
+    {
+      "id": "exp_20250907_181127505677",
+      "date": "2025-09-22",
+      "amount": 34.99,
+      "category": "Bills",
+      "description": "gym",
+      "payment_method": "card",
+      "tags": []
+    },
+    {
+      "id": "exp_20250907_181210006805",
+      "date": "2025-09-07",
+      "amount": 250.0,
+      "category": "Food",
+      "description": "food",
+      "payment_method": "card",
+      "tags": []
+    }
+  ]
+}

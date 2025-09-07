@@ -1,0 +1,22 @@
+{
+  "expenses": [
+    {
+      "id": "exp_20250907_181427103949",
+      "date": "2025-09-07",
+      "amount": 300.0,
+      "category": "Entertainment",
+      "description": "clothes, shoes and perfumes",
+      "payment_method": "card",
+      "tags": []
+    },
+    {
+      "id": "exp_20250907_181509613569",
+      "date": "2025-09-07",
+      "amount": 1299.0,
+      "category": "Technology",
+      "description": "iphone",
+      "payment_method": "card",
+      "tags": []
+    }
+  ]
+}
